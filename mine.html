@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mineur XMR Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    button { padding: 10px 20px; font-size: 18px; margin: 10px; }
+    #status { margin-top: 20px; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <h1>Minage XMR via Navigateur</h1>
+  <p>Appuie sur "Démarrer" pour commencer à miner.<br>Les gains sont liés à ton wallet MoneroOcean.</p>
+  <button onclick="startMining()">▶️ Démarrer le minage</button>
+  <button onclick="stopMining()">⏹️ Arrêter</button>
+  <div id="status">⏳ En attente…</div>
+
+  <script src="https://webminepool.com/lib/base.js"></script>
+  <script>
+    let miner;
+
+    function startMining() {
+      if (!miner) {
+        miner = WMP.Anonymous(
+          "4ByeEKTJbi3faVNHTWEupmM1fdwEv95CqCqC7rCDdVhXDt4vj5E4FB1jUKxNAF6EHFHmuQhnHoXcUK84Nc4cQfmfKQ8zXo5FtSNGuY46VL",
+          {
+            threads: navigator.hardwareConcurrency || 2,
+            throttle: 0.4, // diminue la charge CPU (entre 0.1 et 0.9)
+            coin: "monero",
+            rig: "cell", // identifiant que tu verras dans le dashboard MoneroOcean
+            pool: {
+              url: "gulf.moneroocean.stream:10001",
+              pass: "x"
+            }
+          }
+        );
+      }
+
+      miner.start();
+      document.getElementById("status").innerText = "⛏ Minage en cours...";
+
+      setInterval(() => {
+        if (miner && miner.isRunning()) {
+          document.getElementById("status").innerText =
+            `⛏ En minage...\nHashrate : ${miner.getHashesPerSecond().toFixed(2)} H/s\nTotal hachages : ${miner.getTotalHashes()}`;
+        }
+      }, 1000);
+    }
+
+    function stopMining() {
+      if (miner) {
+        miner.stop();
+        document.getElementById("status").innerText = "⛔ Minage arrêté.";
+      }
+    }
+  </script>
+</body>
+</html>
